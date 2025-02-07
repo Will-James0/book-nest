@@ -21,13 +21,13 @@ public class AdminAuthorController {
         this.authorService = authorService;
     }
 
-    // 🔹 Récupérer tous les auteurs
+    //  Récupérer tous les auteurs
     @GetMapping
     public List<Author> getAllAuthors() {
         return authorService.getAllAuthors();
     }
 
-    // 🔹 Ajouter un auteur
+    //  Ajouter un auteur
     @PostMapping("/save")
     public ResponseEntity<String> addAuthor(@RequestParam("name") String name,
                                             @RequestParam(value = "image", required = false) MultipartFile image) {
@@ -43,7 +43,15 @@ public class AdminAuthorController {
         }
     }
 
-    // 🔹 Mettre à jour un auteur
+    @GetMapping("/{id}")
+    public ResponseEntity<Author> getAuthorById(@PathVariable Long id) {
+        Optional<Author> author = authorService.getAuthorById(id);
+
+        return author.map(ResponseEntity::ok)
+                     .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    //  Mettre à jour un auteur
     @PutMapping("/{id}")
     public ResponseEntity<Author> updateAuthor(@PathVariable long id,
                                                @RequestParam(value = "name", required = false) String name,
@@ -57,7 +65,7 @@ public class AdminAuthorController {
         }
     }
 
-    // 🔹 Supprimer un auteur
+    //  Supprimer un auteur
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteAuthor(@PathVariable Long id) {
         boolean deleted = authorService.deleteAuthor(id);

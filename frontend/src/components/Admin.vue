@@ -275,11 +275,21 @@ const logout = () => {
   --clr-form: #000;
   --clr-header: #333;
   --clr-label:#2e2e2e;
+  --clr-thead: rgb(55, 65, 81);
+  --bg-thead: rgb(249, 250, 251);
+  --bg-tr: #fff;
+  --border-clr-tr: rgb(229, 231, 235);
+  --clr-th: rgb(17, 24, 39);
+
   
 }
 
 /* dark theme */
 .dark-theme-variables {
+  --border-clr-tr: rgb(55, 65, 81);
+  --bg-tr: rgb(31, 41, 55);
+  --clr-thead: rgb(156, 163, 175);
+  --bg-thead: rgb(55, 65, 81);
   --bg-ctn-form: #000;
   --bg-form: #000;
   --clr-form: #fff;

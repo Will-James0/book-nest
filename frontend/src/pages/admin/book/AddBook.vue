@@ -1,62 +1,131 @@
 <template>
     <div class="container">
         <header>Formulaire d'ajout d'un livre</header>
-        <form method="post" enctype="multipart/form-data">
+        <form @submit.prevent="submitForm" enctype="multipart/form-data">
             <div class="form first">
                 <div class="details personal">
-                    <span class="title">Details du livre</span>
+                    <span class="title">Détails du livre</span>
                     <div class="fields">
                         <div class="input-field">
                             <label for="title">Titre <span class="require">*</span> :</label>
-                            <input type="text" placeholder="Entrer un titre:" name="title" id="title" required>
+                            <input type="text" placeholder="Entrer un titre:" id="title" v-model="title" required>
                         </div>
 
                         <div class="input-field">
                             <label for="author">Nom de l'auteur <span class="require">*</span> :</label>
-                            <select id="author" name="author" required>
-                                <option value="" disabled>Nom de l'auteur</option>
+                            <select id="author" v-model="selectedAuthorId" required>
+                                <option value="" disabled>Choisissez un auteur</option>
+                                <option v-for="author in authors" :key="author.id" :value="author.id">
+                                    {{ author.name }}
+                                </option>
                             </select>
+                        </div>
+                    </div>
+
+                    <div class="fields">
+                        <div class="input-field">
+                            <label for="photo">Photo :</label>
+                            <input type="file" id="photo" accept="image/*" @change="handleImageUpload">
+                        </div>
+
+                        <div class="input-field">
+                            <label for="book">Fichier <span class="require">*</span> :</label>
+                            <input type="file" id="book" @change="handleFileUpload" required>
                         </div>
                     </div>
                     <div class="fields">
                         <div class="input-field">
-                            <label for="photo">Photo:</label>
-                            <input type="file" name="photo" accept="image/*" style="border: none;">
+                            <textarea name="description" id="description" v-model="description"></textarea>
                         </div>
-
-                        <div class="input-field">
-                            <label for="book">Fichier<span class="require">*</span>:</label>
-                            <input type="file" name="book" style="border: none;">
-                        </div>
-
                     </div>
                 </div>
         
                 <div class="details ID">
-                    <div class="fields">
-                    </div>
-            
                     <button type="submit" class="nextBtn">
                         <span class="btnText">Valider</span>
                     </button>
                 </div> 
             </div>
-        <!-- </div>  end div second form -->
         </form>
     </div>
-
-
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import server from '@/lib/server';
 import router from '@/router';
 
+// Références pour les données du formulaire
+const title = ref("");
+const description = ref("");
+const selectedAuthorId = ref("");
+const authors = ref([]);
+const bookFile = ref(null);
+const bookImage = ref(null);
 
+// Récupérer la liste des auteurs au chargement
+onMounted(async () => {
+    try {
+        const response = await server().get('/admin/authors');
+        authors.value = response.data;
+    } catch (error) {
+        console.error("Erreur lors du chargement des auteurs :", error);
+    }
+});
 
+// Gestion de l'upload des fichiers
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        bookFile.value = file;
+    }
+}
 
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+        bookImage.value = file;
+    } else {
+        alert("Veuillez sélectionner une image valide !");
+    }
+}
+
+// Fonction pour soumettre le formulaire
+async function submitForm() {
+    try {
+        if (!title.value.trim() || !selectedAuthorId.value || !bookFile.value) {
+            alert("Veuillez remplir tous les champs obligatoires !");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("title", title.value);
+        formData.append("authorId", selectedAuthorId.value);
+        formData.append("description", description.value);
+        formData.append("file", bookFile.value);
+        if (bookImage.value) {
+            formData.append("image", bookImage.value);
+        }
+
+        const response = await server().post('/admin/books', formData, {
+            headers: { "Content-Type": "multipart/form-data" }
+        });
+
+        alert("Livre ajouté avec succès !");
+        router.push('/admin/books');
+
+        // Réinitialiser le formulaire
+        title.value = "";
+        selectedAuthorId.value = "";
+        bookFile.value = null;
+        bookImage.value = null;
+    } catch (error) {
+        console.error("Erreur lors de l'ajout du livre :", error);
+        alert("Erreur lors de l'enregistrement !");
+    }
+}
 </script>
+
 
 <style scoped>
 .container{
@@ -93,7 +162,7 @@ import router from '@/router';
 .container form{
     position: relative;
     margin-top: 16px;
-    min-height: 300px;
+    min-height: 400px;
     background-color: var(--bg-form);
     overflow: hidden;
 }

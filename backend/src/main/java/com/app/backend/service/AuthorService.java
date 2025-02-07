@@ -21,12 +21,12 @@ public class AuthorService {
         this.authorRepository = authorRepository;
     }
 
-    // 🔹 Récupérer tous les auteurs
+    //  Récupérer tous les auteurs
     public List<Author> getAllAuthors() {
         return authorRepository.findAll();
     }
 
-    // 🔹 Ajouter un auteur
+    //  Ajouter un auteur
     public String addAuthor(String name, MultipartFile image) throws IOException {
         if (name == null || name.isEmpty()) {
             return "Author name cannot be empty.";
@@ -57,7 +57,7 @@ public class AuthorService {
         return "Author added successfully!";
     }
 
-    // 🔹 Mettre à jour un auteur
+    //  Mettre à jour un auteur
     public Optional<Author> updateAuthor(Long id, String name, MultipartFile image) throws IOException {
         Optional<Author> authorOptional = authorRepository.findById(id);
         if (authorOptional.isEmpty()) {
@@ -80,6 +80,7 @@ public class AuthorService {
             // Définir le nouveau chemin du fichier
             String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
             Path filePath = Paths.get(UPLOAD_DIR, fileName);
+            
 
             // Supprimer l'ancienne image si elle existe
             if (author.getImage() != null) {
@@ -95,7 +96,11 @@ public class AuthorService {
         return Optional.of(authorRepository.save(author));
     }
 
-    // 🔹 Supprimer un auteur
+    public Optional<Author> getAuthorById(Long id) {
+        return authorRepository.findById(id);
+    }
+
+    //  Supprimer un auteur
     public boolean deleteAuthor(Long id) {
         Optional<Author> authorOptional = authorRepository.findById(id);
         if (authorOptional.isPresent()) {
@@ -107,7 +112,7 @@ public class AuthorService {
                 try {
                     Files.deleteIfExists(imagePath);
                 } catch (IOException e) {
-                    e.printStackTrace(); // Log de l'erreur
+                    e.printStackTrace();
                 }
             }
 

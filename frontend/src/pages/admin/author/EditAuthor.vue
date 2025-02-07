@@ -16,13 +16,6 @@
                             <input type="file" name="photo" accept="image/*" style="border: none;" @change="handleFileUpload">
                         </div>
                     </div>
-                    <div class="fields">
-                        <div class="input-field">
-                            <div v-if="previewImage">
-                                <img :src="previewImage" alt="Aperçu de l'image" class="preview" />
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="details ID">
@@ -40,18 +33,22 @@
   
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import router from '@/router';
 import server from '@/lib/server';
 
-const route = useRoute();
-const router = useRouter();
 const author = ref({});
 const image = ref(null);
 const previewImage = ref(null);
 
+const props = defineProps({
+  id: Number
+});
+
 const fetchAuthor = async () => {
     try {
-        const response = await server().get(`/admin/authors/${route.params.id}`);
+        console.log("Props reçus:", props.id);
+        const response = await server().get(`/admin/authors/${props.id}`);
+        console.log("param", props.id)
         author.value = response.data;
         if (author.value.image) {
             previewImage.value = `http://localhost:8080/api${author.value.image}`;
@@ -78,10 +75,10 @@ const submitForm = async () => {
         const formData = new FormData();
         formData.append('name', author.value.name);
         if (image.value) {
-            formData.append('photo', image.value);
+            formData.append('image', image.value);
         }
 
-        await server().put(`/admin/authors/${route.params.id}`, formData, {
+        await server().put(`/admin/authors/${props.id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

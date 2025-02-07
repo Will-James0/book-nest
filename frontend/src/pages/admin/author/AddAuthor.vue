@@ -16,13 +16,6 @@
                             <input type="file" name="image" accept="image/*" style="border: none;" @change="handleFileUpload">
                         </div>
                     </div>
-                    <div class="fields">
-                        <div class="input-field">
-                            <div v-if="previewImage">
-                                <img :src="previewImage" alt="Aperçu de l'image" class="preview" />
-                            </div>
-                        </div>
-                    </div>
                 </div>
         
                 <div class="details ID">

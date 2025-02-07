@@ -1,36 +1,78 @@
 <template>
     <div>
-        <h2>Liste des livres</h2>
-    </div>
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>
-                        Titre
-                    </th>
-                    <th>
-                        Nom de l'auteur
-                    </th>
-                    <th>
-                        Action
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>1</td>
-                    <td>1</td>
-                    <td>1</td>
-                </tr>
-            </tbody>
-        </table>
+        <h2 class="text-2xl font-bold mb-4">Liste des livres</h2>
+
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right">
+                <thead class="text-xs uppercase bg-gray-200">
+                    <tr>
+                        <th scope="col" class="px-6 py-3">Titre</th>
+                        <th scope="col" class="px-6 py-3">Auteur</th>
+                        <th scope="col" class="px-6 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="book in books" :key="book.id" class="bg-white border-b">
+                        <td class="px-6 py-4 flex items-center">
+                            <img v-if="book.image" :src="getBookImageUrl(book.image)" alt="Couverture" class="w-12 h-12 mr-3 rounded">
+                            <span>{{ book.title }}</span>
+                        </td>
+                        <td class="px-6 py-4">{{ book.author.name }}</td>
+                        <td class="px-6 py-4 flex gap-2">
+                            <button @click="editBook(book.id)" class="text-blue-600 hover:underline">Modifier</button>
+                            <button @click="deleteBook(book.id)" class="text-red-600 hover:underline">Supprimer</button>
+                            <button @click="downloadBook(book.file)" class="text-green-600 hover:underline">Télécharger</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
+import server from "@/lib/server";
+import router from "@/router";
 
+const books = ref([]);
+const isLoading = ref(true);
+
+const fetchBooks = async () => {
+    try {
+        const response = await server().get("/admin/books");
+        books.value = response.data;
+    } catch (error) {
+        console.error("Erreur lors de la récupération des livres:", error);
+    } finally {
+        isLoading.value = false;
+    }
+};
+
+const editBook = (id) => {
+    router.push(`/admin/books/edit/${id}`);
+};
+
+const deleteBook = async (id) => {
+    try {
+        await server().delete(`/admin/books/${id}`);
+        fetchBooks(); // Mettre à jour la liste après suppression
+    } catch (error) {
+        console.error("Erreur lors de la suppression du livre:", error);
+    }
+};
+
+const downloadBook = (filePath) => {
+    window.open(`http://localhost:8080/api/${filePath}`, "_blank");
+};
+
+const getBookImageUrl = (imagePath) => {
+    return `http://localhost:8080/api/${imagePath}`;
+};
+
+onMounted(fetchBooks);
 </script>
+
 
 <style scoped>
 table {

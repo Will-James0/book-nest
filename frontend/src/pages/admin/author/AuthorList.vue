@@ -1,27 +1,32 @@
 <template>
     <div>
         <h2>Liste des auteurs</h2>
-        <div class="table-container">
-            <table class="table tab">
-                <thead>
+        
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+            <table class="w-full text-sm text-left rtl:text-right">
+                <thead class="text-xs">
                     <tr>
-                        <th>Photo</th>
-                        <th>Nom Complet</th>
-                        <th colspan="2">Action</th>
+                        <th scope="col" class="px-6 py-3">
+                            Name
+                        </th>
+                        <th scope="col" class="px-6 py-3" colspan="2">
+                            Action
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="author in authors" :key="author.id">
-
-                        <td>
+                        <th scope="row" class="flex items-center px-6 py-4 whitespace-nowrap">
                             <img v-if="author.image" :src="getAuthorImageUrl(author.image)" alt="Photo de l'auteur" width="50" height="50">
                             <img v-else src="../../../assets/images/user_48px.png" alt="Photo de l'auteur" width="50" height="50">
-                        </td>
-                        <td>{{ author.name }}</td>
-                        <td>
+                            <div class="ps-3">
+                                <div class="text-base font-semibold">{{ author.name }}</div>
+                            </div>  
+                        </th>
+                        <td class="px-6 py-4">
                             <button @click="editAuthor(author.id)"><img src="../../../assets/svg/edit.svg" alt="Edit" srcset=""></button>
                         </td>
-                        <td>
+                        <td class="px-6 py-4">
                             <button @click="deleteAuthor(author.id)"><img src="../../../assets/svg/delete.svg" alt="Delete" srcset=""></button>
                         </td>
                     </tr>
@@ -34,6 +39,7 @@
   <script setup>
   import { ref, onMounted } from 'vue';
   import server from '@/lib/server';
+  import router from '@/router';
   
   const authors = ref([]);
   const isLoading = ref(true);
@@ -51,11 +57,11 @@
   
   const editAuthor = (id) => {
     router.push(`/admin/authors/edit/${id}`);
-};
+  };
   
   const deleteAuthor = async (id) => {
       try {
-          await server().delete(`api/admin/authors/${id}`);
+          await server().delete(`/admin/authors/${id}`);
           fetchAuthors();
       } catch (error) {
           console.error('Erreur lors de la suppression de l\'auteur:', error);
@@ -105,20 +111,30 @@ table {
     top: 0;
     max-height: 525px;
     overflow-y: scroll;
+}
+table {
     background-color: var(--bg-form);
     color: var(--clr-form);
+
 }
 thead{
-    position: sticky;
-    top: 0;
-    z-index: 1;
+    background-color: var(--bg-thead);
+    color: var(--clr-thead);
+}
+tr {
+    background-color: var(--bg-tr);
+    border-color: var(--border-clr-tr);
+}
+tr:hover {
+    background-color: var(--bg-thead);
 }
 tbody{
     margin-top: 100px;
 }
 
+
 td {
-  align-items: center;
-  justify-content: center;
+  align-items: center !important;
+  justify-content: center !important;
 }
 </style>
